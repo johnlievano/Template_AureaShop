@@ -1,0 +1,344 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import { useCart } from '../../../context/CartContext'
+import Link from 'next/link'
+import { 
+  Star, ShoppingBag, Heart, Truck, ShieldCheck, 
+  ChevronDown, ChevronUp, ArrowLeft, ZoomIn 
+} from 'lucide-react'
+
+// --- 1. BASE DE DATOS UNIFICADA (IDs 100 y 200) ---
+const ALL_PRODUCTS = [
+  // SERIE 100 (Clásicos)
+  { 
+    id: 101, 
+    nombre: "Cyber Jacket Pro", 
+    categoria: "Chaquetas", 
+    precio: 280000, 
+    precio_ant: 350000,
+    descripcion: "Diseñada para el entorno urbano hostil. Tejido impermeable de alta densidad con detalles reflectantes. Corte oversize para máxima movilidad.",
+    img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200", 
+    imgs: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200"],
+    rating: 4.8, 
+    reviews: 85, 
+    sizes: ['S', 'M', 'L', 'XL']
+  },
+  { 
+    id: 102, 
+    nombre: "Sneakers Carbon", 
+    categoria: "Calzado", 
+    precio: 190000, 
+    precio_ant: 240000,
+    descripcion: "Suela de fibra de carbono para retorno de energía. Upper tejido en una sola pieza.",
+    img: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200", 
+    imgs: ["https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200"],
+    rating: 5, 
+    reviews: 120, 
+    sizes: ['38', '40', '42', '44']
+  },
+  
+  // SERIE 200 (Nuevos / Streetwear - EL QUE BUSCAS EN LA URL 201)
+  { 
+    id: 201, 
+    nombre: "Phantom Bomber Jacket", 
+    categoria: "Hombre", 
+    precio: 350000, 
+    precio_ant: 420000, 
+    descripcion: "Bomber clásica reinventada con materiales técnicos. Aislante térmico ligero y bolsillos de seguridad ocultos.",
+    img: "https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9tYmVyJTIwamFja2V0fGVufDB8fDB8fHww", 
+    imgs: ["https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9tYmVyJTIwamFja2V0fGVufDB8fDB8fHww"], 
+    rating: 4.9, 
+    reviews: 32, 
+    sizes: ['M', 'L', 'XL'] 
+  },
+  { 
+    id: 202, 
+    nombre: "Oversized Graphic Tee", 
+    categoria: "Mujer", 
+    precio: 95000, 
+    precio_ant: null, 
+    descripcion: "Algodón peruano de alto gramaje con estampado en serigrafía de alta densidad.",
+    img: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200", 
+    imgs: ["https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200"], 
+    rating: 4.7, 
+    reviews: 18, 
+    sizes: ['S', 'M', 'L'] 
+  },
+  { 
+    id: 203, 
+    nombre: "Tactical Cargo Pants", 
+    categoria: "Hombre", 
+    precio: 180000, 
+    precio_ant: 210000, 
+    descripcion: "Pantalón cargo con múltiples bolsillos funcionales y ajuste en tobillos.",
+    img: "https://images.unsplash.com/photo-1763388542551-f6e278d2c1a7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGNhcmdvJTIwcGFudHxlbnwwfHwwfHx8MA%3D%3D", 
+    imgs: ["https://images.unsplash.com/photo-1763388542551-f6e278d2c1a7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGNhcmdvJTIwcGFudHxlbnwwfHwwfHx8MA%3D%3D"], 
+    rating: 4.5, 
+    reviews: 45, 
+    sizes: ['30', '32', '34'] 
+  },
+  { 
+    id: 204, 
+    nombre: "Run Star Hike", 
+    categoria: "Zapatos", 
+    precio: 420000, 
+    precio_ant: null, 
+    descripcion: "Plataforma voluminosa y suela dentada de goma para un look futurista.",
+    img: "https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=80&w=387", 
+    imgs: ["https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=80&w=387"], 
+    rating: 5.0, 
+    reviews: 89, 
+    sizes: ['36', '38', '40'] 
+  },
+  { 
+    id: 205, 
+    nombre: "Urban Crossbody Bag", 
+    categoria: "Accesorios", 
+    precio: 120000, 
+    precio_ant: 150000, 
+    descripcion: "Bolso cruzado compacto e impermeable, ideal para llevar lo esencial.",
+    img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200", 
+    imgs: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200"], 
+    rating: 4.8, 
+    reviews: 12, 
+    sizes: ['Unica'] 
+  },
+]
+
+// --- COMPONENTE ACORDEÓN ---
+const ProductAccordion = ({ title, children }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <div className="border-t border-gray-200 dark:border-gray-800">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full py-4 flex justify-between items-center text-left group">
+        <span className="text-sm font-bold uppercase tracking-widest group-hover:text-red-600 transition-colors dark:text-white">{title}</span>
+        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-40 pb-4' : 'max-h-0'}`}>
+        <div className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+export default function ProductDetailPage() {
+  const params = useParams()
+  const { addToCart } = useCart()
+  
+  // Estado de carga y producto
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  // Estados de interacción
+  const [selectedSize, setSelectedSize] = useState('U')
+  const [quantity, setQuantity] = useState(1)
+  const [activeImg, setActiveImg] = useState('')
+  const [zoomStyle, setZoomStyle] = useState({ opacity: 0, transform: 'scale(1)' })
+
+  // Efecto: Buscar producto por ID
+  useEffect(() => {
+    if (params?.id) {
+        const found = ALL_PRODUCTS.find(p => p.id === parseInt(params.id))
+        if (found) {
+            setProduct(found)
+            setActiveImg(found.img)
+            if (found.sizes) setSelectedSize(found.sizes[0])
+        }
+        setLoading(false)
+    }
+  }, [params])
+
+  // Lógica Zoom
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
+    const x = ((e.pageX - left) / width) * 100
+    const y = ((e.pageY - top) / height) * 100
+    
+    setZoomStyle({
+      opacity: 1,
+      transformOrigin: `${x}% ${y}%`,
+      transform: 'scale(2)'
+    })
+  }
+
+  const handleMouseLeave = () => {
+    setZoomStyle({ opacity: 0, transform: 'scale(1)' })
+  }
+
+  // --- MANEJO DE ESTADOS DE CARGA Y ERROR (VISIBLES) ---
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center pt-24">
+        <div className="text-black dark:text-white font-bold animate-pulse">CARGANDO PRODUCTO...</div>
+    </div>
+  )
+
+  if (!product) return (
+    <div className="min-h-screen flex flex-col items-center justify-center pt-24 gap-4">
+        <h2 className="text-2xl font-black text-black dark:text-white uppercase">Producto no encontrado</h2>
+        <p className="text-gray-500">El artículo que buscas no existe o fue retirado.</p>
+        <Link href="/productos" className="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase text-xs hover:bg-red-600 transition-colors">
+            Volver a la tienda
+        </Link>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-500 pt-24 pb-24">
+      
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-6 mb-8 flex items-center justify-between">
+        <Link href="/productos" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+           <ArrowLeft size={16} /> Volver a Colección
+        </Link>
+        <span className="text-[10px] uppercase font-black text-red-600 tracking-[0.2em]">{product.categoria} / {product.nombre}</span>
+      </div>
+
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+
+          {/* --- COLUMNA IZQUIERDA: GALERÍA + ZOOM --- */}
+          <div className="lg:col-span-7">
+             <div className="grid gap-4">
+                {/* IMAGEN PRINCIPAL CON LUPA */}
+                <div 
+                  className="relative w-full aspect-[4/5] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden cursor-crosshair group touch-none"
+                  onMouseMove={handleMouseMove}
+                  onMouseLeave={handleMouseLeave}
+                >
+                   <img 
+                     src={activeImg} 
+                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-100 ease-linear"
+                     style={zoomStyle.opacity === 1 ? zoomStyle : {}} 
+                     alt={product.nombre}
+                   />
+                   <div className={`absolute bottom-6 right-6 bg-white/90 dark:bg-black/80 p-3 rounded-full pointer-events-none transition-opacity duration-300 ${zoomStyle.opacity === 1 ? 'opacity-0' : 'opacity-100'}`}>
+                      <ZoomIn size={20} />
+                   </div>
+                </div>
+
+                {/* Miniaturas */}
+                {product.imgs && product.imgs.length > 0 && (
+                  <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                    {[product.img, ...product.imgs].filter((v,i,a)=>a.indexOf(v)===i).map((imgUrl, idx) => (
+                       <button 
+                         key={idx} 
+                         onClick={() => setActiveImg(imgUrl)}
+                         className={`w-20 h-24 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${activeImg === imgUrl ? 'border-black dark:border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                       >
+                          <img src={imgUrl} className="w-full h-full object-cover" alt="thumbnail" />
+                       </button>
+                    ))}
+                  </div>
+                )}
+             </div>
+          </div>
+
+          {/* --- COLUMNA DERECHA: INFO --- */}
+          <div className="lg:col-span-5 sticky top-24 h-fit">
+             <div className="mb-8 border-b border-gray-100 dark:border-gray-800 pb-8">
+                <div className="flex justify-between items-start mb-4">
+                   <h1 className="text-4xl md:text-5xl font-black uppercase italic leading-none">{product.nombre}</h1>
+                   <button className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                      <Heart size={24} />
+                   </button>
+                </div>
+
+                <div className="flex items-center gap-4 mb-6">
+                   <div className="flex text-yellow-500">
+                      {[...Array(5)].map((_,i) => <Star key={i} size={16} fill={i < Math.floor(product.rating) ? "currentColor" : "none"} className={i >= Math.floor(product.rating) ? "text-gray-300" : ""} />)}
+                   </div>
+                   <span className="text-xs font-bold text-gray-400 border-l border-gray-300 pl-4">{product.reviews} Reseñas</span>
+                </div>
+
+                <div className="flex items-end gap-4">
+                   <span className="text-5xl font-black">${product.precio.toLocaleString()}</span>
+                   {product.precio_ant && (
+                      <span className="text-xl text-gray-400 line-through decoration-red-500 decoration-2 mb-2">${product.precio_ant ? product.precio_ant.toLocaleString() : ''}</span>
+                   )}
+                </div>
+             </div>
+
+             <p className="text-gray-600 dark:text-gray-300 mb-8 font-medium leading-relaxed">
+                {product.descripcion}
+             </p>
+
+             {/* Selectores */}
+             <div className="space-y-6 mb-8">
+                {product.sizes && (
+                   <div>
+                      <div className="flex justify-between mb-2">
+                         <span className="text-xs font-black uppercase tracking-widest text-gray-400">Talla</span>
+                         <button className="text-[10px] underline font-bold uppercase">Guía</button>
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                         {product.sizes.map(size => (
+                            <button 
+                              key={size}
+                              onClick={() => setSelectedSize(size)}
+                              className={`h-12 w-12 flex items-center justify-center rounded-xl font-bold border-2 transition-all ${selectedSize === size ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black' : 'border-gray-200 dark:border-gray-800 hover:border-gray-400'}`}
+                            >
+                               {size}
+                            </button>
+                         ))}
+                      </div>
+                   </div>
+                )}
+             </div>
+
+             {/* Acciones */}
+             <div className="flex gap-4 mb-10">
+                <div className="flex items-center border-2 border-gray-200 dark:border-gray-800 rounded-xl px-4">
+                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-xl font-bold hover:text-red-600 px-2">-</button>
+                   <span className="w-8 text-center font-black">{quantity}</span>
+                   <button onClick={() => setQuantity(quantity + 1)} className="text-xl font-bold hover:text-red-600 px-2">+</button>
+                </div>
+                <button 
+                  onClick={() => addToCart({ ...product, quantity, size: selectedSize })}
+                  className="flex-1 bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-3 active:scale-95"
+                >
+                   <ShoppingBag size={20} /> Añadir
+                </button>
+             </div>
+
+             {/* Acordeones */}
+             <div className="space-y-0">
+                <ProductAccordion title="Detalles">
+                   <p>Composición: 100% Algodón Orgánico.<br/>Ref: {product.id}-2025.</p>
+                </ProductAccordion>
+                <ProductAccordion title="Envío">
+                   <div className="flex items-center gap-3 mb-2">
+                      <Truck size={18} /> <span>Envío Express (24-48h)</span>
+                   </div>
+                   <p>Gratis por compras superiores a $200.000 COP.</p>
+                </ProductAccordion>
+                <ProductAccordion title="Garantía">
+                   <div className="flex items-center gap-3 mb-2">
+                      <ShieldCheck size={18} /> <span>Garantía de 30 días</span>
+                   </div>
+                   <p>Cambios gratis si no te queda.</p>
+                </ProductAccordion>
+             </div>
+          </div>
+        </div>
+        
+        {/* RECOMENDADOS */}
+        <div className="mt-32 border-t border-gray-100 dark:border-gray-800 pt-16">
+           <h2 className="text-2xl font-black uppercase mb-8 dark:text-white">También te puede gustar</h2>
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {ALL_PRODUCTS.filter(p => p.id !== product.id).slice(0, 4).map(p => (
+                 <Link href={`/productos/${p.id}`} key={p.id} className="group">
+                    <div className="aspect-[3/4] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden mb-4 relative">
+                       <img src={p.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    </div>
+                    <h3 className="font-bold text-sm uppercase group-hover:text-red-600 transition-colors">{p.nombre}</h3>
+                    <p className="text-gray-500 text-xs">${p.precio.toLocaleString()}</p>
+                 </Link>
+              ))}
+           </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
