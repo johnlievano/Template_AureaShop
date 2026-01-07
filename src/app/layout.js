@@ -1,6 +1,7 @@
 ﻿import { Inter } from 'next/font/google'
 import './globals.css'
 
+import ScrollToTop from '../components/layout/ScrollToTop'
 import ClientWrapper from '../components/layout/ClientWrapper'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <ClientWrapper>
           <ThemeProvider>
+            <ScrollToTop />
             <Navbar />
             <main className="min-h-screen pt-[80px]">
               {children}

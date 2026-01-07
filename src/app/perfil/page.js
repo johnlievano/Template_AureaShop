@@ -3,7 +3,7 @@ import { useState, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { Camera, Save, CheckCircle, Upload, Trash2, Palette, User } from 'lucide-react'
 
-// 1. COLECCIÓN DE AVATARES PREDISEÑADOS (Estilo Artístico/High-End)
+// 1. COLECCIÓN DE AVATARES PREDISEÑADOS
 const AVATAR_PRESETS = [
   "https://api.dicebear.com/9.x/micah/svg?seed=Felix&backgroundColor=fdfbf7",
   "https://api.dicebear.com/9.x/notionists/svg?seed=Oliver&backgroundColor=e5e7eb",
@@ -13,7 +13,7 @@ const AVATAR_PRESETS = [
   "https://api.dicebear.com/9.x/notionists/svg?seed=Leo&backgroundColor=ffdfbf", 
 ]
 
-// 2. PALETA DE COLORES (Para el avatar de iniciales)
+// 2. PALETA DE COLORES
 const BG_COLORS = [
   { name: 'Negro', hex: '000000', class: 'bg-black' },
   { name: 'Rojo', hex: 'DC2626', class: 'bg-red-600' },
@@ -34,58 +34,45 @@ export default function MisDatosPage() {
     telefono: user?.telefono || '',
   })
 
-  // Estado visual del avatar (Preview)
+  // Estado visual del avatar
   const [avatarPreview, setAvatarPreview] = useState(
-    user?.avatar || `https://ui-avatars.com/api/?name=${user?.nombre}&background=000000&color=fff`
+    user?.avatar || `https://ui-avatars.com/api/?name=${user?.nombre || 'User'}&background=000000&color=fff`
   )
 
-  // --- LÓGICA: SUBIR FOTO (Convertir a Base64) ---
   const handleFileUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result) // Muestra la foto subida
-      }
+      reader.onloadend = () => setAvatarPreview(reader.result)
       reader.readAsDataURL(file)
     }
   }
 
-  // --- LÓGICA: SELECCIONAR PRESET ---
-  const selectPreset = (url) => {
-    setAvatarPreview(url)
-  }
+  const selectPreset = (url) => setAvatarPreview(url)
 
-  // --- LÓGICA: CAMBIAR COLOR (Solo si es avatar de iniciales) ---
   const changeAvatarColor = (hex) => {
-    // Generamos nueva URL de UI-Avatars con el color seleccionado
-    const newUrl = `https://ui-avatars.com/api/?name=${formData.nombre}&background=${hex}&color=fff&size=128`
+    const newUrl = `https://ui-avatars.com/api/?name=${formData.nombre || 'User'}&background=${hex}&color=fff&size=128`
     setAvatarPreview(newUrl)
   }
 
-  // --- LÓGICA: ELIMINAR FOTO ---
   const removePhoto = () => {
-    setAvatarPreview(`https://ui-avatars.com/api/?name=${formData.nombre}&background=random&color=fff`)
+    setAvatarPreview(`https://ui-avatars.com/api/?name=${formData.nombre || 'User'}&background=random&color=fff`)
   }
 
-  // --- GUARDAR CAMBIOS ---
   const handleSave = async (e) => {
     e.preventDefault()
     setIsSaving(true)
-
-    // Guardamos nombre, teléfono Y la imagen actual (sea subida, preset o iniciales)
-    await updateUser({
-      ...formData,
-      avatar: avatarPreview // Esto guarda la URL o el Base64 en el context/localStorage
-    })
-
+    await updateUser({ ...formData, avatar: avatarPreview })
     setIsSaving(false)
     setSuccess(true)
     setTimeout(() => setSuccess(false), 3000)
   }
 
   return (
-    <div>
+    // CORRECCIÓN AQUÍ: Agregamos clases de contenedor y padding-top (pt-24) 
+    // para que el contenido baje y no estorbe al menú de hamburguesa.
+    <div className="container mx-auto px-6 pt-24 pb-12 min-h-screen">
+      
       <h1 className="text-3xl font-black uppercase mb-8 dark:text-white">Mis Datos Personales</h1>
       
       {/* --- ZONA DE PERSONALIZACIÓN DE AVATAR --- */}
@@ -95,11 +82,9 @@ export default function MisDatosPage() {
            {/* 1. La Imagen Grande */}
            <div className="relative group shrink-0">
               <div className="w-40 h-40 rounded-full border-4 border-white dark:border-[#111] shadow-2xl overflow-hidden bg-white">
-                 
                  <img src={avatarPreview} className="w-full h-full object-cover" alt="Avatar" />
               </div>
               
-              {/* Botón Flotante Cámara */}
               <button 
                 onClick={() => fileInputRef.current.click()}
                 className="absolute bottom-1 right-1 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-lg hover:scale-110 transition-transform"
@@ -107,7 +92,6 @@ export default function MisDatosPage() {
               >
                  <Upload size={18} />
               </button>
-              {/* Input invisible */}
               <input 
                  type="file" 
                  ref={fileInputRef} 
@@ -129,23 +113,23 @@ export default function MisDatosPage() {
                  </button>
               </div>
 
-              {/* SECCIÓN: Galería de Avatares (Muñequitos) */}
+              {/* Galería de Avatares */}
               <div className="mb-6">
                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Avatares con Estilo</span>
                  <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                     {AVATAR_PRESETS.map((url, i) => (
                        <button 
-                         key={i} 
-                         onClick={() => selectPreset(url)}
-                         className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all hover:scale-110 shrink-0 ${avatarPreview === url ? 'border-red-600 scale-110' : 'border-transparent hover:border-gray-300'}`}
+                          key={i} 
+                          onClick={() => selectPreset(url)}
+                          className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all hover:scale-110 shrink-0 ${avatarPreview === url ? 'border-red-600 scale-110' : 'border-transparent hover:border-gray-300'}`}
                        >
-                          <img src={url} className="w-full h-full object-cover" />
+                          <img src={url} className="w-full h-full object-cover" alt="preset" />
                        </button>
                     ))}
                  </div>
               </div>
 
-              {/* SECCIÓN: Color de Iniciales */}
+              {/* Color de Iniciales */}
               <div>
                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block flex items-center gap-2">
                     <Palette size={12}/> Color de Fondo (Iniciales)
@@ -153,10 +137,10 @@ export default function MisDatosPage() {
                  <div className="flex gap-3">
                     {BG_COLORS.map((color) => (
                        <button 
-                         key={color.hex}
-                         onClick={() => changeAvatarColor(color.hex)}
-                         className={`w-8 h-8 rounded-full ${color.class} border-2 transition-transform hover:scale-110 ${avatarPreview.includes(color.hex) ? 'border-white ring-2 ring-black dark:ring-white scale-110' : 'border-transparent'}`}
-                         title={color.name}
+                          key={color.hex}
+                          onClick={() => changeAvatarColor(color.hex)}
+                          className={`w-8 h-8 rounded-full ${color.class} border-2 transition-transform hover:scale-110 ${avatarPreview.includes(color.hex) ? 'border-white ring-2 ring-black dark:ring-white scale-110' : 'border-transparent'}`}
+                          title={color.name}
                        />
                     ))}
                  </div>
@@ -216,7 +200,6 @@ export default function MisDatosPage() {
   )
 }
 
-// Icono pequeño helper
 const LockIcon = ({size}) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
 )
