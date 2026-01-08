@@ -5,137 +5,23 @@ import { useCart } from '../../../context/CartContext'
 import Link from 'next/link'
 import {
    Star, ShoppingBag, Heart, Truck, ShieldCheck,
-   ChevronDown, ChevronUp, ArrowLeft, ZoomIn
+   ChevronDown, ChevronUp, ArrowLeft, ZoomIn,
+   X, Check, ChevronLeft, ChevronRight, Plus, ArrowRight
 } from 'lucide-react'
 
-// --- 1. BASE DE DATOS UNIFICADA (IDs 100 y 200) ---
+// --- 1. BASE DE DATOS UNIFICADA ---
 const ALL_PRODUCTS = [
-   // SERIE 100 (Clásicos)
-   {
-      id: 101,
-      nombre: "Cyber Jacket Pro",
-      categoria: "Chaquetas",
-      precio: 280000,
-      precio_ant: 350000,
-      descripcion: "Diseñada para el entorno urbano hostil. Tejido impermeable de alta densidad.",
-      img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200"],
-      rating: 4.8,
-      reviews: 85,
-      sizes: ['S', 'M', 'L', 'XL']
-   },
-   {
-      id: 102,
-      nombre: "Sneakers Carbon",
-      categoria: "Calzado",
-      precio: 190000,
-      precio_ant: 240000,
-      descripcion: "Suela de fibra de carbono para retorno de energía.",
-      img: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200"],
-      rating: 5,
-      reviews: 120,
-      sizes: ['38', '40', '42', '44']
-   },
-   {
-      id: 103,
-      nombre: "Hoodie Oversized",
-      categoria: "Hoodies",
-      precio: 120000,
-      precio_ant: 180000,
-      descripcion: "Hoodie de algodón pesado con caída estructural.",
-      img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200"],
-      rating: 4.9,
-      reviews: 45,
-      sizes: ['S', 'M', 'L', 'XL']
-   },
-   {
-      id: 104,
-      nombre: "Smart Glasses V2",
-      categoria: "Accesorios",
-      precio: 350000,
-      precio_ant: 450000,
-      descripcion: "Gafas inteligentes con filtro UV y conectividad Bluetooth.",
-      img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1200"],
-      rating: 4.7,
-      reviews: 32,
-      sizes: ['Unica']
-   },
-
-   // --- AQUÍ ESTABA EL ERROR: ELIMINÉ EL "Urban Cargo Pants" DUPLICADO ---
-   // AHORA EL ÚNICO ID 105 ES ESTE (EL CORRECTO):
-
-   {
-      id: 105,
-      nombre: "Tactical Cargo Pants",
-      categoria: "Pantalones",
-      precio: 150000,
-      precio_ant: 190000,
-      descripcion: "Pantalón cargo con múltiples bolsillos funcionales y ajuste en tobillos.",
-      // URL DE LA CHICA CON GORRO:
-      img: "https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&q=80&w=1200"],
-      rating: 4.6,
-      reviews: 28,
-      sizes: ['30', '32', '34']
-   },
-
-   // SERIE 200 (Nuevos / Streetwear)
-   {
-      id: 201,
-      nombre: "Phantom Bomber Jacket",
-      categoria: "Hombre",
-      precio: 350000,
-      precio_ant: 420000,
-      descripcion: "Bomber clásica reinventada con materiales técnicos.",
-      img: "https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9tYmVyJTIwamFja2V0fGVufDB8fDB8fHww",
-      imgs: ["https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9tYmVyJTIwamFja2V0fGVufDB8fDB8fHww"],
-      rating: 4.9,
-      reviews: 32,
-      sizes: ['M', 'L', 'XL']
-   },
-   {
-      id: 202,
-      nombre: "Oversized Graphic Tee",
-      categoria: "Mujer",
-      precio: 95000,
-      precio_ant: null,
-      descripcion: "Algodón peruano de alto gramaje.",
-      img: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200"],
-      rating: 4.7,
-      reviews: 18,
-      sizes: ['S', 'M', 'L']
-   },
-   // (El ID 203 original lo quité o renombré a 105 arriba para evitar confusiones, sigue el 204)
-   {
-      id: 204,
-      nombre: "Run Star Hike",
-      categoria: "Zapatos",
-      precio: 420000,
-      precio_ant: null,
-      descripcion: "Plataforma voluminosa y suela dentada.",
-      img: "https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=80&w=387",
-      imgs: ["https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=80&w=387"],
-      rating: 5.0,
-      reviews: 89,
-      sizes: ['36', '38', '40']
-   },
-   {
-      id: 205,
-      nombre: "Urban Crossbody Bag",
-      categoria: "Accesorios",
-      precio: 120000,
-      precio_ant: 150000,
-      descripcion: "Bolso cruzado compacto e impermeable.",
-      img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200",
-      imgs: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200"],
-      rating: 4.8,
-      reviews: 12,
-      sizes: ['Unica']
-   },
+   // SERIE 100
+   { id: 101, nombre: "Cyber Jacket Pro", categoria: "Chaquetas", precio: 280000, precio_ant: 350000, descripcion: "Diseñada para el entorno urbano hostil. Tejido impermeable de alta densidad.", img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1200"], rating: 4.8, reviews: 85, sizes: ['S', 'M', 'L', 'XL'] },
+   { id: 102, nombre: "Sneakers Carbon", categoria: "Calzado", precio: 190000, precio_ant: 240000, descripcion: "Suela de fibra de carbono para retorno de energía.", img: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200"], rating: 5, reviews: 120, sizes: ['38', '40', '42', '44'] },
+   { id: 103, nombre: "Hoodie Oversized", categoria: "Hoodies", precio: 120000, precio_ant: 180000, descripcion: "Hoodie de algodón pesado con caída estructural.", img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200"], rating: 4.9, reviews: 45, sizes: ['S', 'M', 'L', 'XL'] },
+   { id: 104, nombre: "Smart Glasses V2", categoria: "Accesorios", precio: 350000, precio_ant: 450000, descripcion: "Gafas inteligentes con filtro UV y conectividad Bluetooth.", img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1200"], rating: 4.7, reviews: 32, sizes: ['Unica'] },
+   { id: 105, nombre: "Tactical Cargo Pants", categoria: "Pantalones", precio: 150000, precio_ant: 190000, descripcion: "Pantalón cargo con múltiples bolsillos funcionales y ajuste en tobillos.", img: "https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&q=80&w=1200"], rating: 4.6, reviews: 28, sizes: ['30', '32', '34'] },
+   // SERIE 200
+   { id: 201, nombre: "Phantom Bomber Jacket", categoria: "Hombre", precio: 350000, precio_ant: 420000, descripcion: "Bomber clásica reinventada con materiales técnicos.", img: "https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60", imgs: ["https://images.unsplash.com/photo-1602525582399-7ef5f604ff7e?w=500&auto=format&fit=crop&q=60"], rating: 4.9, reviews: 32, sizes: ['M', 'L', 'XL'] },
+   { id: 202, nombre: "Oversized Graphic Tee", categoria: "Mujer", precio: 95000, precio_ant: null, descripcion: "Algodón peruano de alto gramaje.", img: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200"], rating: 4.7, reviews: 18, sizes: ['S', 'M', 'L'] },
+   { id: 204, nombre: "Run Star Hike", categoria: "Zapatos", precio: 420000, precio_ant: null, descripcion: "Plataforma voluminosa y suela dentada.", img: "https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&q=80&w=387", imgs: ["https://images.unsplash.com/photo-1621315271772-28b1f3a5df87?auto=format&fit=crop&q=80&w=387"], rating: 5.0, reviews: 89, sizes: ['36', '38', '40'] },
+   { id: 205, nombre: "Urban Crossbody Bag", categoria: "Accesorios", precio: 120000, precio_ant: 150000, descripcion: "Bolso cruzado compacto e impermeable.", img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200", imgs: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1200"], rating: 4.8, reviews: 12, sizes: ['Unica'] },
 ]
 
 // --- COMPONENTE ACORDEÓN ---
@@ -154,6 +40,82 @@ const ProductAccordion = ({ title, children }) => {
    )
 }
 
+// --- MODAL UPSELL (Recomendaciones) ---
+const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
+   const [currentIndex, setCurrentIndex] = useState(0)
+   const [addedItems, setAddedItems] = useState([]) 
+ 
+   useEffect(() => {
+     if (isOpen) setAddedItems([])
+   }, [isOpen])
+ 
+   if (!isOpen) return null
+ 
+   const itemsPerPage = 3
+   const visibleProducts = allProducts.slice(currentIndex, currentIndex + itemsPerPage)
+ 
+   const nextSlide = () => { if (currentIndex + itemsPerPage < allProducts.length) setCurrentIndex(currentIndex + 1) }
+   const prevSlide = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1) }
+ 
+   const handleAdd = (product) => {
+     onAddRecommendation(product)
+     setAddedItems(prev => [...prev, product.id])
+   }
+ 
+   return (
+     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
+       <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up border border-gray-200 dark:border-gray-800">
+         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white transition-colors"><X size={20} /></button>
+         <div className="flex flex-col items-center text-center mb-6">
+           <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#111] shadow-lg"><Check size={32} strokeWidth={4} /></div>
+           <h2 className="text-2xl font-black uppercase dark:text-white leading-none">¡Producto Agregado!</h2>
+           <p className="text-gray-500 text-xs mt-2">Completa tu outfit con estas recomendaciones:</p>
+         </div>
+         <div className="relative group mb-8 px-2">
+           <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
+           
+           <div className="grid grid-cols-3 gap-3">
+             {visibleProducts.map(p => {
+               const isAdded = addedItems.includes(p.id)
+               return (
+                 <div key={p.id} className="border border-gray-100 dark:border-gray-800 p-2 rounded-xl flex flex-col gap-2 group/card hover:border-black dark:hover:border-white transition-all animate-in fade-in slide-in-from-right-4 duration-300">
+                   <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100"><img src={p.img} alt={p.nombre} className="w-full h-full object-cover" /></div>
+                   <div>
+                     <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
+                     <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
+                   </div>
+                   
+                   <button 
+                     onClick={() => !isAdded && handleAdd(p)}
+                     className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
+                       isAdded 
+                         ? 'bg-green-600 cursor-default'
+                         : 'bg-black dark:bg-white hover:opacity-80'
+                     }`}
+                   >
+                     {isAdded ? (
+                       <> <Check size={10} strokeWidth={4} /> Añadido </>
+                     ) : (
+                       <> <Plus size={10} /> Añadir </>
+                     )}
+                   </button>
+ 
+                 </div>
+               )
+             })}
+           </div>
+ 
+           <button onClick={nextSlide} className={`absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex + itemsPerPage >= allProducts.length ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronRight size={18} className="dark:text-white" /></button>
+         </div>
+         <div className="flex flex-col md:flex-row gap-4">
+           <button onClick={onClose} className="flex-1 py-3.5 rounded-full border-2 border-gray-200 dark:border-gray-700 font-bold uppercase text-xs hover:border-black dark:hover:border-white transition-colors dark:text-white">Seguir Comprando</button>
+           <Link href="/carrito" className="flex-1 py-3.5 rounded-full bg-green-600 text-white font-black uppercase text-xs text-center hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">Ir al Carrito <ArrowRight size={14} /></Link>
+         </div>
+       </div>
+     </div>
+   )
+ }
+
 export default function ProductDetailPage() {
    const params = useParams()
    const { addToCart } = useCart()
@@ -167,6 +129,7 @@ export default function ProductDetailPage() {
    const [quantity, setQuantity] = useState(1)
    const [activeImg, setActiveImg] = useState('')
    const [zoomStyle, setZoomStyle] = useState({ opacity: 0, transform: 'scale(1)' })
+   const [showSuccess, setShowSuccess] = useState(false) // <--- Estado del Modal
 
    // Efecto: Buscar producto por ID
    useEffect(() => {
@@ -198,15 +161,15 @@ export default function ProductDetailPage() {
       setZoomStyle({ opacity: 0, transform: 'scale(1)' })
    }
 
-   // --- MANEJO DE ESTADOS DE CARGA Y ERROR (VISIBLES) ---
+   // --- MANEJO DE ESTADOS DE CARGA Y ERROR ---
    if (loading) return (
-      <div className="min-h-screen flex items-center justify-center pt-24">
+      <div className="min-h-screen flex items-center justify-center pt-24 bg-white dark:bg-[#0a0a0a]">
          <div className="text-black dark:text-white font-bold animate-pulse">CARGANDO PRODUCTO...</div>
       </div>
    )
 
    if (!product) return (
-      <div className="min-h-screen flex flex-col items-center justify-center pt-24 gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center pt-24 gap-4 bg-white dark:bg-[#0a0a0a]">
          <h2 className="text-2xl font-black text-black dark:text-white uppercase">Producto no encontrado</h2>
          <p className="text-gray-500">El artículo que buscas no existe o fue retirado.</p>
          <Link href="/productos" className="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase text-xs hover:bg-red-600 transition-colors">
@@ -216,7 +179,7 @@ export default function ProductDetailPage() {
    )
 
    return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-500 pt-24 pb-24">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-500 pt-28 md:pt-24 pb-24">
 
          {/* Breadcrumb */}
          <div className="container mx-auto px-6 mb-8 flex items-center justify-between">
@@ -232,7 +195,7 @@ export default function ProductDetailPage() {
                {/* --- COLUMNA IZQUIERDA: GALERÍA + ZOOM --- */}
                <div className="lg:col-span-7">
                   <div className="grid gap-4">
-                     {/* IMAGEN PRINCIPAL CON LUPA */}
+                     {/* IMAGEN PRINCIPAL */}
                      <div
                         className="relative w-full aspect-[4/5] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden cursor-crosshair group touch-none"
                         onMouseMove={handleMouseMove}
@@ -244,6 +207,7 @@ export default function ProductDetailPage() {
                            style={zoomStyle.opacity === 1 ? zoomStyle : {}}
                            alt={product.nombre}
                         />
+                        {/* Lupa siempre visible en móvil (opacity-100) */}
                         <div className={`absolute bottom-6 right-6 bg-white/90 dark:bg-black/80 p-3 rounded-full pointer-events-none transition-opacity duration-300 ${zoomStyle.opacity === 1 ? 'opacity-0' : 'opacity-100'}`}>
                            <ZoomIn size={20} />
                         </div>
@@ -326,7 +290,10 @@ export default function ProductDetailPage() {
                         <button onClick={() => setQuantity(quantity + 1)} className="text-xl font-bold hover:text-red-600 px-2">+</button>
                      </div>
                      <button
-                        onClick={() => addToCart({ ...product, quantity, size: selectedSize })}
+                        onClick={() => {
+                           addToCart({ ...product, quantity, size: selectedSize });
+                           setShowSuccess(true);
+                        }}
                         className="flex-1 bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-3 active:scale-95"
                      >
                         <ShoppingBag size={20} /> Añadir
@@ -361,9 +328,9 @@ export default function ProductDetailPage() {
                   {ALL_PRODUCTS.filter(p => p.id !== product.id).slice(0, 4).map(p => (
                      <Link href={`/productos/${p.id}`} key={p.id} className="group">
                         <div className="aspect-[3/4] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden mb-4 relative">
-                           <img src={p.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                           <img src={p.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={p.nombre}/>
                         </div>
-                        <h3 className="font-bold text-sm uppercase group-hover:text-red-600 transition-colors">{p.nombre}</h3>
+                        <h3 className="font-bold text-sm uppercase group-hover:text-red-600 transition-colors dark:text-white">{p.nombre}</h3>
                         <p className="text-gray-500 text-xs">${p.precio.toLocaleString()}</p>
                      </Link>
                   ))}
@@ -371,6 +338,15 @@ export default function ProductDetailPage() {
             </div>
 
          </div>
+
+         {/* MODAL DE ÉXITO */}
+         <UpsellModal 
+            isOpen={showSuccess} 
+            onClose={() => setShowSuccess(false)} 
+            allProducts={ALL_PRODUCTS} 
+            onAddRecommendation={(p) => addToCart(p)} 
+         />
+
       </div>
    )
 }

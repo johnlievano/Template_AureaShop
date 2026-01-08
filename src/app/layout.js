@@ -20,12 +20,12 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <ClientWrapper>
           <ThemeProvider>
-            <ScrollToTop />
-            <Navbar />
-            <main className="min-h-screen pt-[80px]">
-              {children}
-            </main>
-            <Footer />
+              <ScrollToTop />
+              <Navbar />
+              <main className="min-h-screen pt-[80px]">
+                {children}
+              </main>
+              <Footer />
           </ThemeProvider>
         </ClientWrapper>
       </body>

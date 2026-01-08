@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { Camera, Save, CheckCircle, Upload, Trash2, Palette, User } from 'lucide-react'
+import { ShoppingBag, Trash2, ArrowRight } from 'lucide-react'
 
 // 1. COLECCIÓN DE AVATARES PREDISEÑADOS
 const AVATAR_PRESETS = [

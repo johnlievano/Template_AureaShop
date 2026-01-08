@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useCart } from '../context/CartContext'
 import {
   X, ArrowRight, Star, ShoppingBag, Truck, ShieldCheck,
-  CreditCard, Clock, Zap, Eye, Heart
+  CreditCard, Clock, Zap, Eye, Heart, Check, ChevronLeft, ChevronRight, Plus
 } from 'lucide-react'
 
 // --- 1. DATOS ---
@@ -29,14 +29,11 @@ const HERO_SLIDES = [
   {
     id: 2,
     title: "MONOCHROME",
-    // 1. Texto más corto para que se vea limpio en celular
-    subtitle: "La elegancia del negro. Edición Limitada.", 
+    subtitle: "La elegancia del negro. Edición Limitada.",
     cta: "Ver Colección",
-    // 2. IMAGEN CAMBIADA: Fondo oscuro, modelo centrada pero con espacio, funciona perfecto con texto blanco
-    image: "https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1500", 
+    image: "https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1500",
     align: "center",
-    // 3. Volvemos al centro estándar, esta foto sí lo soporta
-    position: "object-center" 
+    position: "object-center"
   },
   {
     id: 3,
@@ -78,72 +75,79 @@ const ScrollReveal = ({ children }) => {
   )
 }
 
-// B. Modal "Target View"
+// B. Modal "Target View" (VISTA RÁPIDA) - CORREGIDO PARA PC
 const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
   if (!product) return null
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}>
-      <div
-        className="bg-white dark:bg-[#1a1a1a] w-full max-w-4xl max-h-[90vh] md:max-h-none rounded-3xl shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-y-auto md:overflow-hidden"
+    <div 
+      // CORRECCIÓN CLAVE: pt-32 en PC (md:pt-32) para bajarlo del navbar. items-start en móvil, items-center en PC.
+      className="fixed inset-0 z-[90] flex items-start md:items-center justify-center p-4 pt-28 md:pt-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" 
+      onClick={onClose}
+    >
+      <div 
+        // CORRECCIÓN DE ALTURA: max-h-[85vh] para que no se corte en pantallas pequeñas de laptop.
+        className="bg-white dark:bg-[#1a1a1a] w-full max-w-4xl max-h-[80vh] md:max-h-[85vh] rounded-3xl shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-hidden border border-gray-100 dark:border-gray-800"
         onClick={e => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-30 p-2 bg-white/80 md:bg-gray-100 dark:bg-black/50 md:dark:bg-gray-800 rounded-full hover:rotate-90 transition-all dark:text-white backdrop-blur-sm"
+        {/* Botón Cerrar */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-3 right-3 z-30 p-2 bg-white/80 md:bg-gray-100 dark:bg-black/50 md:dark:bg-gray-800 rounded-full hover:rotate-90 transition-all dark:text-white backdrop-blur-sm shadow-sm"
         >
           <X size={20} />
         </button>
 
-        <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-200 dark:bg-gray-900 relative group shrink-0">
+        {/* Imagen: En PC ocupa el 50% y NO se recorta (object-contain o cover controlado) */}
+        <div className="w-full md:w-1/2 h-40 md:h-auto bg-gray-100 dark:bg-gray-900 relative shrink-0">
           <img src={product.img} className="w-full h-full object-cover" alt={product.nombre} />
           {product.tag && (
-            <span className="absolute top-6 left-6 bg-red-600 text-white text-xs font-black px-3 py-1 rounded-sm uppercase tracking-widest">
+            <span className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest">
               {product.tag}
             </span>
           )}
         </div>
 
-        <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col dark:text-white md:overflow-y-auto">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-black italic uppercase leading-none mb-2">{product.nombre}</h2>
-              <div className="flex items-center gap-2 text-yellow-500 text-sm font-bold">
-                <div className="flex"><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /></div>
-                <span className="text-gray-400 dark:text-gray-500">({product.reviews} reviews)</span>
-              </div>
+        {/* Contenido con Scroll Interno si es necesario */}
+        <div className="w-full md:w-1/2 flex-1 flex flex-col p-6 md:p-10 dark:text-white overflow-y-auto">
+          
+          <div className="mb-4">
+            <h2 className="text-2xl md:text-3xl font-black italic uppercase leading-none mb-2">{product.nombre}</h2>
+            <div className="flex items-center gap-2 text-yellow-500 text-xs font-bold">
+               <div className="flex"><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /></div>
+               <span className="text-gray-400 dark:text-gray-500">({product.reviews} reviews)</span>
             </div>
           </div>
 
-          <div className="flex items-end gap-3 mb-6 md:mb-8">
-            <span className="text-4xl font-black text-red-600">${product.precio.toLocaleString()}</span>
-            <span className="text-lg text-gray-400 line-through decoration-red-500 decoration-2 mb-1">${product.precio_ant.toLocaleString()}</span>
+          <div className="flex items-baseline gap-3 mb-4">
+            <span className="text-3xl md:text-4xl font-black text-red-600">${product.precio.toLocaleString()}</span>
+            <span className="text-sm text-gray-400 line-through decoration-red-500 decoration-2">${product.precio_ant.toLocaleString()}</span>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed font-medium text-sm md:text-base">
+          <p className="text-gray-600 dark:text-gray-300 mb-8 text-sm leading-relaxed border-l-2 border-red-600 pl-4">
             Diseño ergonómico con materiales de alta resistencia. Ideal para uso intensivo urbano. Garantía de fábrica incluida.
           </p>
 
-          <div className="mt-auto space-y-4 pb-4 md:pb-0">
+          <div className="mt-auto space-y-6">
             <div>
-              <span className="text-xs font-bold uppercase text-gray-400 mb-2 block tracking-widest">Seleccionar Talla</span>
+              <span className="text-[10px] font-bold uppercase text-gray-400 mb-3 block tracking-widest">Seleccionar Talla</span>
               <div className="flex gap-2">
                 {['S', 'M', 'L', 'XL'].map(s => (
-                  <button key={s} className="w-10 h-10 border-2 border-gray-200 dark:border-gray-700 rounded-lg font-bold hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all">
+                  <button key={s} className="w-12 h-12 border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-sm hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all">
                     {s}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <button
-                onClick={() => onAddToCart(product)}
-                className="flex-1 bg-black dark:bg-white dark:text-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:opacity-80 transition-opacity flex items-center justify-center gap-2"
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={() => onAddToCart(product)} 
+                className="flex-1 bg-black dark:bg-white dark:text-black text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:opacity-80 transition-opacity flex items-center justify-center gap-2 shadow-xl"
               >
-                <ShoppingBag size={18} /> Agregar
+                <ShoppingBag size={18} /> AGREGAR AL CARRITO
               </button>
-              <button className="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 hover:text-red-600 transition-colors">
+              <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 hover:text-red-600 transition-colors">
                 <Heart size={20} />
               </button>
             </div>
@@ -154,7 +158,84 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
   )
 }
 
-// C. Card de Producto
+// C. Modal de Recomendaciones (UPSELL)
+const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [addedItems, setAddedItems] = useState([]) // Nuevo estado para rastrear añadidos
+
+  // Reseteamos los añadidos cada vez que se abre el modal principal
+  useEffect(() => {
+    if (isOpen) setAddedItems([])
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const itemsPerPage = 3
+  const visibleProducts = allProducts.slice(currentIndex, currentIndex + itemsPerPage)
+
+  const nextSlide = () => { if (currentIndex + itemsPerPage < allProducts.length) setCurrentIndex(currentIndex + 1) }
+  const prevSlide = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1) }
+
+  const handleAdd = (product) => {
+    onAddRecommendation(product)
+    setAddedItems(prev => [...prev, product.id]) // Marcamos como añadido
+  }
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up border border-gray-200 dark:border-gray-800">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white transition-colors"><X size={20} /></button>
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#111] shadow-lg"><Check size={32} strokeWidth={4} /></div>
+          <h2 className="text-2xl font-black uppercase dark:text-white leading-none">¡Producto Agregado!</h2>
+          <p className="text-gray-500 text-xs mt-2">Completa tu outfit con estas recomendaciones:</p>
+        </div>
+        <div className="relative group mb-8 px-2">
+          <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
+          
+          <div className="grid grid-cols-3 gap-3">
+            {visibleProducts.map(p => {
+              const isAdded = addedItems.includes(p.id) // Verificamos si ya se añadió
+              return (
+                <div key={p.id} className="border border-gray-100 dark:border-gray-800 p-2 rounded-xl flex flex-col gap-2 group/card hover:border-black dark:hover:border-white transition-all animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100"><img src={p.img} alt={p.nombre} className="w-full h-full object-cover" /></div>
+                  <div>
+                    <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
+                    <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
+                  </div>
+                  
+                  <button 
+                    onClick={() => !isAdded && handleAdd(p)} // Solo añade si no está añadido
+                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
+                      isAdded 
+                        ? 'bg-green-600 cursor-default' // Estilo verde si ya se añadió
+                        : 'bg-black dark:bg-white hover:opacity-80' // Estilo normal
+                    }`}
+                  >
+                    {isAdded ? (
+                      <> <Check size={10} strokeWidth={4} /> Añadido </>
+                    ) : (
+                      <> <Plus size={10} /> Añadir </>
+                    )}
+                  </button>
+
+                </div>
+              )
+            })}
+          </div>
+
+          <button onClick={nextSlide} className={`absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex + itemsPerPage >= allProducts.length ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronRight size={18} className="dark:text-white" /></button>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <button onClick={onClose} className="flex-1 py-3.5 rounded-full border-2 border-gray-200 dark:border-gray-700 font-bold uppercase text-xs hover:border-black dark:hover:border-white transition-colors dark:text-white">Seguir Comprando</button>
+          <Link href="/carrito" className="flex-1 py-3.5 rounded-full bg-green-600 text-white font-black uppercase text-xs text-center hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">Ir al Carrito <ArrowRight size={14} /></Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// D. Card de Producto
 const ProductCard = ({ product, onView }) => (
   <div className="group relative bg-white dark:bg-[#151515] rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-800 dark:text-white">
     <div className="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-800">
@@ -195,6 +276,7 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [timeLeft, setTimeLeft] = useState({ h: 23, m: 59, s: 59 })
   const { addToCart } = useCart()
+  const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentSlide(p => (p + 1) % HERO_SLIDES.length), 5000)
@@ -228,44 +310,32 @@ export default function Home() {
         {HERO_SLIDES.map((slide, index) => (
           <div 
             key={slide.id}
-            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100 z-20 pointer-events-auto' : 'opacity-0 scale-105 z-10 pointer-events-none'}`}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-10 opacity-90" />
-            
-            {/* Imagen con posición dinámica */}
             <img 
               src={slide.image} 
               className={`w-full h-full object-cover ${slide.position || 'object-center'}`} 
               alt={slide.title} 
             />
-            
-            {/* CORRECCIÓN DE TEXTO RESPONSIVE:
-                1. justify-end pb-32: En celular manda el texto abajo.
-                2. md:justify-center: En PC lo centra verticalmente.
-                3. La lógica de alineación ahora tiene 'md:' para que solo afecte a PC. En celular siempre será izquierda.
-            */}
             <div className={`absolute inset-0 z-20 container mx-auto px-6 md:px-12 flex flex-col justify-end pb-32 md:justify-center md:pb-0 ${
-                slide.align === 'center' ? 'items-start text-left md:items-center md:text-center' : 
-                slide.align === 'right' ? 'items-start text-left md:items-end md:text-right' : 
-                'items-start text-left'
+              slide.align === 'center' ? 'items-start text-left md:items-center md:text-center' : 
+              slide.align === 'right' ? 'items-start text-left md:items-end md:text-right' : 
+              'items-start text-left'
             }`}>
               <div className="animate-slide-up max-w-3xl">
                 <span className="inline-block px-4 py-1 border border-white/30 backdrop-blur-md text-white text-xs font-bold uppercase tracking-[0.2em] mb-4 md:mb-6 rounded-full">
                   Nueva Temporada 2025
                 </span>
-                
-                {/* text-5xl en móvil (más pequeño) -> text-8xl en PC */}
                 <h2 className="text-4xl md:text-8xl font-black text-white mb-4 md:mb-6 leading-[0.9] tracking-tighter drop-shadow-2xl">
                   {slide.title}
                 </h2>
-                
                 <p className="text-lg md:text-2xl text-gray-200 mb-8 md:mb-10 font-medium max-w-xl leading-relaxed">
                   {slide.subtitle}
                 </p>
-                
                 <Link 
                   href="/productos" 
-                  className="inline-flex items-center gap-4 bg-red-600 text-white px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all transform hover:-translate-y-2 shadow-[0_20px_50px_rgba(220,38,38,0.5)] text-sm md:text-base"
+                  className="inline-flex items-center gap-4 bg-red-600 text-white px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all transform hover:-translate-y-2 shadow-[0_20px_50px_rgba(220,38,38,0.5)] text-sm md:text-base cursor-pointer z-50 pointer-events-auto"
                 >
                   {slide.cta} <ArrowRight size={20} />
                 </Link>
@@ -273,7 +343,6 @@ export default function Home() {
             </div>
           </div>
         ))}
-
         <div className="absolute bottom-12 right-12 z-30 flex gap-4">
           {HERO_SLIDES.map((_, i) => (
             <button
@@ -308,29 +377,36 @@ export default function Home() {
       </section>
 
       {/* 3. PRODUCTOS DESTACADOS */}
-      <section className="py-24 px-6 md:px-12 bg-stone-50 dark:bg-[#0a0a0a]">
+      <section className="py-12 md:py-24 px-4 md:px-12 bg-stone-50 dark:bg-[#0a0a0a]">
         <ScrollReveal>
           <div className="container mx-auto">
-            <div className="flex justify-between items-end mb-12">
+            <div className="flex justify-between items-end mb-8 md:mb-12">
               <div>
-                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-2 dark:text-white">
+                <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-2 dark:text-white">
                   Lo Más <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Vendido</span>
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 font-medium">Favoritos de la comunidad esta semana.</p>
+                <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium">Favoritos de la comunidad.</p>
               </div>
               <Link href="/productos" className="hidden md:flex items-center gap-2 font-bold uppercase tracking-widest border-b-2 border-red-600 pb-1 hover:text-red-600 transition-colors">
                 Ver Todo <ArrowRight size={16} />
               </Link>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
               {PRODUCTS.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onView={() => setSelectedProduct(product)}
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  onView={() => setSelectedProduct(product)} 
                 />
               ))}
+            </div>
+            <div className="mt-8 md:mt-12 text-center md:hidden">
+               <Link 
+                 href="/productos" 
+                 className="inline-flex items-center gap-2 font-bold uppercase tracking-widest border-b-2 border-red-600 pb-1 hover:text-red-600 transition-colors text-gray-900 dark:text-white"
+               >
+                 VER TODO <ArrowRight size={16} />
+               </Link>
             </div>
           </div>
         </ScrollReveal>
@@ -340,7 +416,6 @@ export default function Home() {
       <section className="relative py-32 bg-red-600 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-multiply"></div>
         <div className="absolute -right-20 top-0 w-96 h-96 bg-black rounded-full blur-[100px] opacity-30"></div>
-
         <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="w-full md:w-1/2 text-white">
             <div className="flex items-center gap-2 mb-4">
@@ -353,7 +428,6 @@ export default function Home() {
             <p className="text-xl font-medium mb-8 text-red-100 max-w-md">
               Equípate con lo mejor. Hasta 60% de descuento en la colección urbana. Solo por 24 horas.
             </p>
-
             <div className="flex gap-4 mb-8">
               <div className="bg-black/20 backdrop-blur border border-white/20 p-4 rounded-xl text-center min-w-[80px]">
                 <span className="block text-3xl font-black">{String(timeLeft.h).padStart(2, '0')}</span>
@@ -368,12 +442,10 @@ export default function Home() {
                 <span className="text-[10px] uppercase font-bold opacity-70">Seg</span>
               </div>
             </div>
-
             <button className="bg-white text-red-600 px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-black hover:text-white transition-colors shadow-2xl">
               Comprar Ahora
             </button>
           </div>
-
           <div className="w-full md:w-1/2 relative">
             <img src="https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800" className="w-full h-auto object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] transform -rotate-12 hover:rotate-0 transition-transform duration-700" alt="Banner" />
           </div>
@@ -399,11 +471,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. MODAL Y FLOTANTES */}
+      {/* 6. MODALES Y FLOTANTES */}
       <ProductTargetModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        onAddToCart={(p) => { addToCart(p); setSelectedProduct(null); }}
+        onAddToCart={(p) => { 
+          addToCart(p); 
+          setSelectedProduct(null); 
+          setShowSuccess(true); 
+        }}
+      />
+
+      <UpsellModal 
+         isOpen={showSuccess} 
+         onClose={() => setShowSuccess(false)} 
+         allProducts={PRODUCTS} 
+         onAddRecommendation={(p) => addToCart(p)} 
       />
 
     </div>
