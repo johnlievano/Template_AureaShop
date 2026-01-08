@@ -33,7 +33,7 @@ const ALL_PRODUCTS = [
 // Tarjeta de Producto (Reutilizable y Corregida)
 const ProductCard = ({ product, onView, onAdd }) => (
   <div className="group relative bg-white dark:bg-[#151515] rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-800 dark:text-white">
-    
+
     <div className="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-800">
       {/* LINK EN LA IMAGEN */}
       <Link href={`/productos/${product.id}`} className="block w-full h-full cursor-pointer">
@@ -41,18 +41,18 @@ const ProductCard = ({ product, onView, onAdd }) => (
       </Link>
 
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-      
+
       {/* Botones de acción flotantes */}
       <button
         onClick={(e) => { e.stopPropagation(); onView(product); }}
-        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
       >
         <Eye size={16} />
       </button>
 
       <button
         onClick={(e) => { e.stopPropagation(); onAdd(product); }}
-        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
+        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-100 lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
       >
         <Plus size={18} />
       </button>
@@ -188,10 +188,10 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
           <h2 className="text-2xl font-black uppercase dark:text-white leading-none">¡Producto Agregado!</h2>
           <p className="text-gray-500 text-xs mt-2">Completa tu outfit con estas recomendaciones:</p>
         </div>
-        
+
         <div className="relative group mb-8 px-2">
           <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
-          
+
           <div className="grid grid-cols-3 gap-3">
             {visibleProducts.map(p => {
               const isAdded = addedItems.includes(p.id)
@@ -202,14 +202,13 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
                     <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
                     <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={() => !isAdded && handleAdd(p)}
-                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
-                      isAdded 
+                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${isAdded
                         ? 'bg-green-600 cursor-default'
                         : 'bg-black dark:bg-white hover:opacity-80'
-                    }`}
+                      }`}
                   >
                     {isAdded ? (
                       <> <Check size={10} strokeWidth={4} /> Añadido </>
@@ -378,9 +377,9 @@ function ProductosContent() {
       <main className="container mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-12">
           {filteredProducts.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
+            <ProductCard
+              key={product.id}
+              product={product}
               onView={() => setSelectedProduct(product)}
               onAdd={(p) => { addToCart(p); setShowSuccess(true); }}
             />
@@ -389,19 +388,19 @@ function ProductosContent() {
       </main>
 
       {/* MODALES */}
-      <ProductTargetModal 
-        product={selectedProduct} 
-        onClose={() => setSelectedProduct(null)} 
-        onAddToCart={(p) => { 
-          addToCart(p); 
-          setSelectedProduct(null); 
-          setShowSuccess(true); 
-        }} 
+      <ProductTargetModal
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={(p) => {
+          addToCart(p);
+          setSelectedProduct(null);
+          setShowSuccess(true);
+        }}
       />
-      
-      <UpsellModal 
-        isOpen={showSuccess} 
-        onClose={() => setShowSuccess(false)} 
+
+      <UpsellModal
+        isOpen={showSuccess}
+        onClose={() => setShowSuccess(false)}
         allProducts={products}
         onAddRecommendation={(p) => addToCart(p)}
       />

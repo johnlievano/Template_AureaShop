@@ -239,17 +239,16 @@ const ProductCard = ({ product, onView, onAdd }) => (
 
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-      {/* Botones (z-20 para estar encima del Link de la imagen) */}
       <button
         onClick={(e) => { e.stopPropagation(); onView(product); }}
-        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
       >
         <Eye size={16} />
       </button>
-
+      
       <button
         onClick={(e) => { e.stopPropagation(); onAdd(product); }}
-        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
+        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-100 lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
       >
         <Plus size={18} />
       </button>
