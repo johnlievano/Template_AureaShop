@@ -1,8 +1,11 @@
 'use client'
 import { useState, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { Camera, Save, CheckCircle, Upload, Trash2, Palette, User } from 'lucide-react'
-import { ShoppingBag, Trash2, ArrowRight } from 'lucide-react'
+// IMPORTACIÓN CORREGIDA: Se eliminaron los duplicados
+import { 
+  Camera, Save, CheckCircle, Upload, Trash2, Palette, User, 
+  ShoppingBag, ArrowRight 
+} from 'lucide-react'
 
 // 1. COLECCIÓN DE AVATARES PREDISEÑADOS
 const AVATAR_PRESETS = [
@@ -70,8 +73,6 @@ export default function MisDatosPage() {
   }
 
   return (
-    // CORRECCIÓN AQUÍ: Agregamos clases de contenedor y padding-top (pt-24) 
-    // para que el contenido baje y no estorbe al menú de hamburguesa.
     <div className="container mx-auto px-6 pt-24 pb-12 min-h-screen">
       
       <h1 className="text-3xl font-black uppercase mb-8 dark:text-white">Mis Datos Personales</h1>
@@ -157,20 +158,20 @@ export default function MisDatosPage() {
             <div className="space-y-2 group">
                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 group-focus-within:text-red-600 transition-colors">Nombre Completo</label>
                <input 
-                 type="text" 
-                 value={formData.nombre} 
-                 onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                 className="w-full bg-gray-50 dark:bg-[#1a1a1a] border-2 border-transparent focus:border-black dark:focus:border-white rounded-xl px-4 py-4 font-bold text-sm dark:text-white outline-none transition-colors placeholder-gray-300" 
+                  type="text" 
+                  value={formData.nombre} 
+                  onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                  className="w-full bg-gray-50 dark:bg-[#1a1a1a] border-2 border-transparent focus:border-black dark:focus:border-white rounded-xl px-4 py-4 font-bold text-sm dark:text-white outline-none transition-colors placeholder-gray-300" 
                />
             </div>
             <div className="space-y-2 group">
                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 group-focus-within:text-red-600 transition-colors">Teléfono</label>
                <input 
-                 type="tel" 
-                 value={formData.telefono} 
-                 onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                 placeholder="+57..." 
-                 className="w-full bg-gray-50 dark:bg-[#1a1a1a] border-2 border-transparent focus:border-black dark:focus:border-white rounded-xl px-4 py-4 font-bold text-sm dark:text-white outline-none transition-colors placeholder-gray-300" 
+                  type="tel" 
+                  value={formData.telefono} 
+                  onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                  placeholder="+57..." 
+                  className="w-full bg-gray-50 dark:bg-[#1a1a1a] border-2 border-transparent focus:border-black dark:focus:border-white rounded-xl px-4 py-4 font-bold text-sm dark:text-white outline-none transition-colors placeholder-gray-300" 
                />
             </div>
          </div>
