@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useCart } from '../../../context/CartContext'
 import Link from 'next/link'
@@ -119,6 +119,7 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
 export default function ProductDetailPage() {
    const params = useParams()
    const { addToCart } = useCart()
+   const imageContainerRef = useRef(null) // Referencia para el contenedor de la imagen
 
    // Estado de carga y producto
    const [product, setProduct] = useState(null)
@@ -129,7 +130,7 @@ export default function ProductDetailPage() {
    const [quantity, setQuantity] = useState(1)
    const [activeImg, setActiveImg] = useState('')
    const [zoomStyle, setZoomStyle] = useState({ opacity: 0, transform: 'scale(1)' })
-   const [showSuccess, setShowSuccess] = useState(false) // <--- Estado del Modal
+   const [showSuccess, setShowSuccess] = useState(false)
 
    // Efecto: Buscar producto por ID
    useEffect(() => {
@@ -144,12 +145,22 @@ export default function ProductDetailPage() {
       }
    }, [params])
 
-   // Lógica Zoom
-   const handleMouseMove = (e) => {
-      const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
-      const x = ((e.pageX - left) / width) * 100
-      const y = ((e.pageY - top) / height) * 100
+   // --- LÓGICA DE ZOOM (MOUSE Y TÁCTIL) ---
 
+   // Función auxiliar para calcular la posición del zoom
+   const calculateZoom = (clientX, clientY, currentTarget) => {
+      const { left, top, width, height } = currentTarget.getBoundingClientRect()
+      const x = ((clientX - left) / width) * 100
+      const y = ((clientY - top) / height) * 100
+      // Aseguramos que los valores estén entre 0% y 100%
+      const clampedX = Math.max(0, Math.min(100, x))
+      const clampedY = Math.max(0, Math.min(100, y))
+      return { x: clampedX, y: clampedY }
+   }
+
+   // Manejador para Mouse (PC)
+   const handleMouseMove = (e) => {
+      const { x, y } = calculateZoom(e.pageX, e.pageY, e.currentTarget)
       setZoomStyle({
          opacity: 1,
          transformOrigin: `${x}% ${y}%`,
@@ -157,8 +168,24 @@ export default function ProductDetailPage() {
       })
    }
 
-   const handleMouseLeave = () => {
-      setZoomStyle({ opacity: 0, transform: 'scale(1)' })
+   // Manejadores para Táctil (Móvil)
+   const handleTouchMove = (e) => {
+      // Previene el scroll de la página mientras se hace zoom
+      if (e.cancelable) e.preventDefault(); 
+      
+      const touch = e.touches[0]
+      const { x, y } = calculateZoom(touch.clientX, touch.clientY, e.currentTarget)
+      
+      setZoomStyle({
+         opacity: 1,
+         transformOrigin: `${x}% ${y}%`,
+         transform: 'scale(2.5)', // Un poco más de zoom en móvil
+         pointerEvents: 'none' // Importante para que el toque no se "pegue"
+      })
+   }
+
+   const handleResetZoom = () => {
+      setZoomStyle({ opacity: 0, transform: 'scale(1)', pointerEvents: 'auto' })
    }
 
    // --- MANEJO DE ESTADOS DE CARGA Y ERROR ---
@@ -179,7 +206,8 @@ export default function ProductDetailPage() {
    )
 
    return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-500 pt-28 md:pt-24 pb-24">
+      // CORRECCIÓN CLAVE PC: Aumentado el padding superior en MD (md:pt-32) para bajar el contenido
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-500 pt-28 md:pt-32 pb-24">
 
          {/* Breadcrumb */}
          <div className="container mx-auto px-6 mb-8 flex items-center justify-between">
@@ -195,15 +223,20 @@ export default function ProductDetailPage() {
                {/* --- COLUMNA IZQUIERDA: GALERÍA + ZOOM --- */}
                <div className="lg:col-span-7">
                   <div className="grid gap-4">
-                     {/* IMAGEN PRINCIPAL */}
+                     {/* IMAGEN PRINCIPAL CON ZOOM TÁCTIL Y MOUSE */}
                      <div
-                        className="relative w-full aspect-[4/5] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden cursor-crosshair group touch-none"
+                        ref={imageContainerRef}
+                        className="relative w-full aspect-[4/5] bg-gray-100 dark:bg-[#151515] rounded-xl overflow-hidden cursor-crosshair group touch-none" // touch-none previene scroll nativo
                         onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseLeave}
+                        onMouseLeave={handleResetZoom}
+                        onTouchStart={handleTouchMove} // Inicia zoom al tocar
+                        onTouchMove={handleTouchMove}  // Mueve el zoom al arrastrar
+                        onTouchEnd={handleResetZoom}   // Resetea al soltar
+                        onTouchCancel={handleResetZoom} // Resetea si se cancela el toque
                      >
                         <img
                            src={activeImg}
-                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-100 ease-linear"
+                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-100 ease-linear will-change-transform"
                            style={zoomStyle.opacity === 1 ? zoomStyle : {}}
                            alt={product.nombre}
                         />
@@ -231,7 +264,7 @@ export default function ProductDetailPage() {
                </div>
 
                {/* --- COLUMNA DERECHA: INFO --- */}
-               <div className="lg:col-span-5 sticky top-24 h-fit">
+               <div className="lg:col-span-5 sticky top-32 h-fit">
                   <div className="mb-8 border-b border-gray-100 dark:border-gray-800 pb-8">
                      <div className="flex justify-between items-start mb-4">
                         <h1 className="text-4xl md:text-5xl font-black uppercase italic leading-none">{product.nombre}</h1>

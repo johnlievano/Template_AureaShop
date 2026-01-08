@@ -7,7 +7,7 @@ import {
   CreditCard, Clock, Zap, Eye, Heart, Check, ChevronLeft, ChevronRight, Plus
 } from 'lucide-react'
 
-// --- 1. DATOS ---
+// --- 2. DATOS ---
 const CATEGORIES = [
   { name: "Sneakers", img: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=600" },
   { name: "Jackets", img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600" },
@@ -53,7 +53,7 @@ const PRODUCTS = [
   { id: 104, nombre: "Smart Glasses V2", precio: 350000, precio_ant: 450000, img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800", rating: 4.7, reviews: 32, tag: null },
 ]
 
-// --- 2. COMPONENTES INTERNOS ---
+// --- 3. COMPONENTES INTERNOS ---
 
 // A. Scroll Reveal
 const ScrollReveal = ({ children }) => {
@@ -80,26 +80,22 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
   if (!product) return null
 
   return (
-    <div 
-      // CORRECCIÓN CLAVE: pt-32 en PC (md:pt-32) para bajarlo del navbar. items-start en móvil, items-center en PC.
-      className="fixed inset-0 z-[90] flex items-start md:items-center justify-center p-4 pt-28 md:pt-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" 
+    <div
+      // CORRECCIÓN CLAVE: items-end en móvil, md:items-center en PC. pt-28 en móvil, md:pt-8 en PC para centrar y bajar del navbar.
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
       onClick={onClose}
     >
-      <div 
-        // CORRECCIÓN DE ALTURA: max-h-[85vh] para que no se corte en pantallas pequeñas de laptop.
-        className="bg-white dark:bg-[#1a1a1a] w-full max-w-4xl max-h-[80vh] md:max-h-[85vh] rounded-3xl shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-hidden border border-gray-100 dark:border-gray-800"
+      <div
+        // CORRECCIÓN DE ALTURA Y ANCHO: max-w-5xl para más espacio lateral, max-h-[85vh] para que no se corte verticalmente.
+        className="bg-white dark:bg-[#1a1a1a] w-full max-w-5xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-hidden border border-gray-100 dark:border-gray-800"
         onClick={e => e.stopPropagation()}
       >
-        {/* Botón Cerrar */}
-        <button 
-          onClick={onClose} 
-          className="absolute top-3 right-3 z-30 p-2 bg-white/80 md:bg-gray-100 dark:bg-black/50 md:dark:bg-gray-800 rounded-full hover:rotate-90 transition-all dark:text-white backdrop-blur-sm shadow-sm"
-        >
+        <button onClick={onClose} className="absolute top-3 right-3 z-30 p-2 bg-white/80 md:bg-gray-100 dark:bg-black/50 md:dark:bg-gray-800 rounded-full hover:rotate-90 transition-all dark:text-white backdrop-blur-sm shadow-sm">
           <X size={20} />
         </button>
 
-        {/* Imagen: En PC ocupa el 50% y NO se recorta (object-contain o cover controlado) */}
-        <div className="w-full md:w-1/2 h-40 md:h-auto bg-gray-100 dark:bg-gray-900 relative shrink-0">
+        {/* Imagen: Altura fija en móvil, automática en PC para llenar el espacio */}
+        <div className="w-full md:w-1/2 h-48 md:h-auto bg-gray-100 dark:bg-gray-900 relative shrink-0">
           <img src={product.img} className="w-full h-full object-cover" alt={product.nombre} />
           {product.tag && (
             <span className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest">
@@ -108,32 +104,31 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
           )}
         </div>
 
-        {/* Contenido con Scroll Interno si es necesario */}
-        <div className="w-full md:w-1/2 flex-1 flex flex-col p-6 md:p-10 dark:text-white overflow-y-auto">
-          
-          <div className="mb-4">
-            <h2 className="text-2xl md:text-3xl font-black italic uppercase leading-none mb-2">{product.nombre}</h2>
+        {/* Contenido con scroll interno */}
+        <div className="w-full md:w-1/2 flex-1 flex flex-col p-6 md:p-8 dark:text-white overflow-y-auto">
+          <div className="mb-2">
+            <h2 className="text-2xl md:text-3xl font-black italic uppercase leading-none mb-1">{product.nombre}</h2>
             <div className="flex items-center gap-2 text-yellow-500 text-xs font-bold">
-               <div className="flex"><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /><Star fill="currentColor" size={14} /></div>
-               <span className="text-gray-400 dark:text-gray-500">({product.reviews} reviews)</span>
+              <div className="flex"><Star fill="currentColor" size={12} /><Star fill="currentColor" size={12} /><Star fill="currentColor" size={12} /><Star fill="currentColor" size={12} /><Star fill="currentColor" size={12} /></div>
+              <span className="text-gray-400 dark:text-gray-500">({product.reviews} reviews)</span>
             </div>
           </div>
 
           <div className="flex items-baseline gap-3 mb-4">
-            <span className="text-3xl md:text-4xl font-black text-red-600">${product.precio.toLocaleString()}</span>
-            <span className="text-sm text-gray-400 line-through decoration-red-500 decoration-2">${product.precio_ant.toLocaleString()}</span>
+            <span className="text-3xl font-black text-red-600">${product.precio.toLocaleString()}</span>
+            <span className="text-sm text-gray-400 line-through decoration-red-500">${product.precio_ant.toLocaleString()}</span>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-8 text-sm leading-relaxed border-l-2 border-red-600 pl-4">
-            Diseño ergonómico con materiales de alta resistencia. Ideal para uso intensivo urbano. Garantía de fábrica incluida.
+          <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm leading-relaxed border-l-2 border-red-600 pl-4">
+            Diseño ergonómico con materiales de alta resistencia. Ideal para uso intensivo urbano.
           </p>
 
-          <div className="mt-auto space-y-6">
+          <div className="mt-auto space-y-4">
             <div>
-              <span className="text-[10px] font-bold uppercase text-gray-400 mb-3 block tracking-widest">Seleccionar Talla</span>
+              <span className="text-[10px] font-bold uppercase text-gray-400 mb-2 block tracking-widest">Seleccionar Talla</span>
               <div className="flex gap-2">
                 {['S', 'M', 'L', 'XL'].map(s => (
-                  <button key={s} className="w-12 h-12 border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-sm hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all">
+                  <button key={s} className="w-10 h-10 border border-gray-200 dark:border-gray-700 rounded-lg font-bold text-sm hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all">
                     {s}
                   </button>
                 ))}
@@ -141,14 +136,14 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button 
-                onClick={() => onAddToCart(product)} 
-                className="flex-1 bg-black dark:bg-white dark:text-black text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:opacity-80 transition-opacity flex items-center justify-center gap-2 shadow-xl"
+              <button
+                onClick={() => onAddToCart(product)}
+                className="flex-1 bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:opacity-80 transition-opacity flex items-center justify-center gap-2 shadow-lg"
               >
-                <ShoppingBag size={18} /> AGREGAR AL CARRITO
+                <ShoppingBag size={16} /> Agregar al Carrito
               </button>
-              <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 hover:text-red-600 transition-colors">
-                <Heart size={20} />
+              <button className="p-3 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 hover:text-red-600 transition-colors">
+                <Heart size={18} />
               </button>
             </div>
           </div>
@@ -161,9 +156,8 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
 // C. Modal de Recomendaciones (UPSELL)
 const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [addedItems, setAddedItems] = useState([]) // Nuevo estado para rastrear añadidos
+  const [addedItems, setAddedItems] = useState([])
 
-  // Reseteamos los añadidos cada vez que se abre el modal principal
   useEffect(() => {
     if (isOpen) setAddedItems([])
   }, [isOpen])
@@ -178,7 +172,7 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
 
   const handleAdd = (product) => {
     onAddRecommendation(product)
-    setAddedItems(prev => [...prev, product.id]) // Marcamos como añadido
+    setAddedItems(prev => [...prev, product.id])
   }
 
   return (
@@ -192,10 +186,10 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
         </div>
         <div className="relative group mb-8 px-2">
           <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
-          
+
           <div className="grid grid-cols-3 gap-3">
             {visibleProducts.map(p => {
-              const isAdded = addedItems.includes(p.id) // Verificamos si ya se añadió
+              const isAdded = addedItems.includes(p.id)
               return (
                 <div key={p.id} className="border border-gray-100 dark:border-gray-800 p-2 rounded-xl flex flex-col gap-2 group/card hover:border-black dark:hover:border-white transition-all animate-in fade-in slide-in-from-right-4 duration-300">
                   <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100"><img src={p.img} alt={p.nombre} className="w-full h-full object-cover" /></div>
@@ -203,14 +197,13 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
                     <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
                     <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
                   </div>
-                  
-                  <button 
-                    onClick={() => !isAdded && handleAdd(p)} // Solo añade si no está añadido
-                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
-                      isAdded 
-                        ? 'bg-green-600 cursor-default' // Estilo verde si ya se añadió
-                        : 'bg-black dark:bg-white hover:opacity-80' // Estilo normal
-                    }`}
+
+                  <button
+                    onClick={() => !isAdded && handleAdd(p)}
+                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${isAdded
+                      ? 'bg-green-600 cursor-default'
+                      : 'bg-black dark:bg-white hover:opacity-80'
+                      }`}
                   >
                     {isAdded ? (
                       <> <Check size={10} strokeWidth={4} /> Añadido </>
@@ -218,7 +211,6 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
                       <> <Plus size={10} /> Añadir </>
                     )}
                   </button>
-
                 </div>
               )
             })}
@@ -236,27 +228,43 @@ const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
 }
 
 // D. Card de Producto
-const ProductCard = ({ product, onView }) => (
+const ProductCard = ({ product, onView, onAdd }) => (
   <div className="group relative bg-white dark:bg-[#151515] rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-800 dark:text-white">
+
     <div className="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-800">
-      <img src={product.img} alt={product.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* 1. IMAGEN CON LINK */}
+      <Link href={`/productos/${product.id}`} className="block w-full h-full cursor-pointer">
+        <img src={product.img} alt={product.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+      </Link>
+
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      {/* Botones (z-20 para estar encima del Link de la imagen) */}
       <button
-        onClick={() => onView(product)}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black text-black dark:text-white px-6 py-3 rounded-full font-bold uppercase tracking-wider text-xs shadow-xl opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+        onClick={(e) => { e.stopPropagation(); onView(product); }}
+        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
       >
-        <Eye size={16} /> Vista Rápida
+        <Eye size={16} />
       </button>
-      <div className="absolute top-3 left-3 flex flex-col gap-2">
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onAdd(product); }}
+        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
+      >
+        <Plus size={18} />
+      </button>
+
+      <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
         {product.tag && <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 uppercase tracking-wider rounded-sm shadow-sm">{product.tag}</span>}
-        <span className="bg-black/80 dark:bg-white/90 text-white dark:text-black text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm backdrop-blur-sm">
-          -{Math.round(((product.precio_ant - product.precio) / product.precio_ant) * 100)}%
-        </span>
       </div>
     </div>
+
     <div className="p-5">
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-bold text-lg leading-tight group-hover:text-red-600 transition-colors">{product.nombre}</h3>
+        {/* 2. TÍTULO CON LINK */}
+        <Link href={`/productos/${product.id}`} className="font-bold text-lg leading-tight group-hover:text-red-600 transition-colors cursor-pointer">
+          {product.nombre}
+        </Link>
         <div className="flex items-center gap-1 text-yellow-500">
           <Star size={12} fill="currentColor" />
           <span className="text-xs font-bold text-gray-400">{product.rating}</span>
@@ -270,7 +278,7 @@ const ProductCard = ({ product, onView }) => (
   </div>
 )
 
-// --- 3. PÁGINA PRINCIPAL ---
+// --- 4. PÁGINA PRINCIPAL ---
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -308,21 +316,20 @@ export default function Home() {
       {/* 1. HERO SLIDER */}
       <section className="relative h-screen w-full overflow-hidden bg-gray-900">
         {HERO_SLIDES.map((slide, index) => (
-          <div 
+          <div
             key={slide.id}
             className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100 z-20 pointer-events-auto' : 'opacity-0 scale-105 z-10 pointer-events-none'}`}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-10 opacity-90" />
-            <img 
-              src={slide.image} 
-              className={`w-full h-full object-cover ${slide.position || 'object-center'}`} 
-              alt={slide.title} 
+            <img
+              src={slide.image}
+              className={`w-full h-full object-cover ${slide.position || 'object-center'}`}
+              alt={slide.title}
             />
-            <div className={`absolute inset-0 z-20 container mx-auto px-6 md:px-12 flex flex-col justify-end pb-32 md:justify-center md:pb-0 ${
-              slide.align === 'center' ? 'items-start text-left md:items-center md:text-center' : 
-              slide.align === 'right' ? 'items-start text-left md:items-end md:text-right' : 
-              'items-start text-left'
-            }`}>
+            <div className={`absolute inset-0 z-20 container mx-auto px-6 md:px-12 flex flex-col justify-end pb-32 md:justify-center md:pb-0 ${slide.align === 'center' ? 'items-start text-left md:items-center md:text-center' :
+              slide.align === 'right' ? 'items-start text-left md:items-end md:text-right' :
+                'items-start text-left'
+              }`}>
               <div className="animate-slide-up max-w-3xl">
                 <span className="inline-block px-4 py-1 border border-white/30 backdrop-blur-md text-white text-xs font-bold uppercase tracking-[0.2em] mb-4 md:mb-6 rounded-full">
                   Nueva Temporada 2025
@@ -333,8 +340,8 @@ export default function Home() {
                 <p className="text-lg md:text-2xl text-gray-200 mb-8 md:mb-10 font-medium max-w-xl leading-relaxed">
                   {slide.subtitle}
                 </p>
-                <Link 
-                  href="/productos" 
+                <Link
+                  href="/productos"
                   className="inline-flex items-center gap-4 bg-red-600 text-white px-8 py-4 md:px-10 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all transform hover:-translate-y-2 shadow-[0_20px_50px_rgba(220,38,38,0.5)] text-sm md:text-base cursor-pointer z-50 pointer-events-auto"
                 >
                   {slide.cta} <ArrowRight size={20} />
@@ -354,6 +361,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Resto de secciones (Trust Bar, Productos, etc.) siguen igual... */}
       {/* 2. TRUST BAR */}
       <section className="bg-white dark:bg-[#111] border-y border-gray-200 dark:border-gray-800 py-10 relative z-20">
         <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -393,20 +401,21 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
               {PRODUCTS.map(product => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  onView={() => setSelectedProduct(product)} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onView={() => setSelectedProduct(product)}
+                  onAdd={(p) => { addToCart(p); setShowSuccess(true); }}
                 />
               ))}
             </div>
             <div className="mt-8 md:mt-12 text-center md:hidden">
-               <Link 
-                 href="/productos" 
-                 className="inline-flex items-center gap-2 font-bold uppercase tracking-widest border-b-2 border-red-600 pb-1 hover:text-red-600 transition-colors text-gray-900 dark:text-white"
-               >
-                 VER TODO <ArrowRight size={16} />
-               </Link>
+              <Link
+                href="/productos"
+                className="inline-flex items-center gap-2 font-bold uppercase tracking-widest border-b-2 border-red-600 pb-1 hover:text-red-600 transition-colors text-gray-900 dark:text-white"
+              >
+                VER TODO <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </ScrollReveal>
@@ -475,18 +484,18 @@ export default function Home() {
       <ProductTargetModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        onAddToCart={(p) => { 
-          addToCart(p); 
-          setSelectedProduct(null); 
-          setShowSuccess(true); 
+        onAddToCart={(p) => {
+          addToCart(p);
+          setSelectedProduct(null);
+          setShowSuccess(true);
         }}
       />
 
-      <UpsellModal 
-         isOpen={showSuccess} 
-         onClose={() => setShowSuccess(false)} 
-         allProducts={PRODUCTS} 
-         onAddRecommendation={(p) => addToCart(p)} 
+      <UpsellModal
+        isOpen={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        allProducts={PRODUCTS}
+        onAddRecommendation={(p) => addToCart(p)}
       />
 
     </div>

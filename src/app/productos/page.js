@@ -27,36 +27,94 @@ const ALL_PRODUCTS = [
 ]
 
 // -----------------------------
-// 2. MODALES
+// 2. COMPONENTES INTERNOS
 // -----------------------------
 
+// Tarjeta de Producto (Reutilizable y Corregida)
+const ProductCard = ({ product, onView, onAdd }) => (
+  <div className="group relative bg-white dark:bg-[#151515] rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-800 dark:text-white">
+    
+    <div className="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-800">
+      {/* LINK EN LA IMAGEN */}
+      <Link href={`/productos/${product.id}`} className="block w-full h-full cursor-pointer">
+        <img src={product.img} alt={product.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      </Link>
+
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      
+      {/* Botones de acción flotantes */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onView(product); }}
+        className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+      >
+        <Eye size={16} />
+      </button>
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onAdd(product); }}
+        className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:scale-110"
+      >
+        <Plus size={18} />
+      </button>
+
+      {/* Tags */}
+      <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
+        {product.tag && <span className="bg-white dark:bg-black text-black dark:text-white text-[9px] font-black px-2 py-1 uppercase tracking-widest shadow-sm">{product.tag}</span>}
+        {product.oferta && <span className="bg-red-600 text-white text-[9px] font-black px-2 py-1 uppercase tracking-widest shadow-sm">Sale</span>}
+      </div>
+    </div>
+
+    <div className="px-3 pt-3 pb-4">
+      <div className="flex justify-between items-start mb-1">
+        {/* LINK EN EL TÍTULO */}
+        <Link href={`/productos/${product.id}`} className="text-xs font-bold uppercase text-gray-900 dark:text-white hover:text-red-600 transition-colors line-clamp-1 pr-4 cursor-pointer">
+          {product.nombre}
+        </Link>
+        <div className="flex items-center gap-1 text-gray-300 dark:text-gray-600">
+          <Star size={10} fill="currentColor" className="text-black dark:text-white" />
+          <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400">{product.rating}</span>
+        </div>
+      </div>
+
+      <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">{product.categoria}</p>
+
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-black text-gray-900 dark:text-white">${product.precio.toLocaleString()}</span>
+        {product.precio_ant && <span className="text-[10px] text-gray-400 line-through decoration-red-500">${product.precio_ant.toLocaleString()}</span>}
+      </div>
+    </div>
+  </div>
+)
+
+// Modal de Vista Rápida (Corregido Z-Index y Posición PC)
 const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1)
   if (!product) return null
 
   const handleAddToCart = () => {
     onAddToCart({ ...product, quantity })
-    onClose()
+    // No cerramos, dejamos que el padre maneje el cambio a Upsell
   }
 
   return (
     <div
-      className="fixed inset-0 z-[90] flex items-start md:items-center justify-center p-4 pt-32 md:pt-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
+      // CORRECCIÓN: z-[200] (muy alto) + items-center + pt-32 en PC
+      className="fixed inset-0 z-[200] flex items-start md:items-center justify-center p-4 pt-32 md:pt-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#1a1a1a] w-full max-w-4xl max-h-[75vh] md:max-h-none rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-hidden md:overflow-visible"
+        className="bg-white dark:bg-[#1a1a1a] w-full max-w-4xl max-h-[85vh] rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row relative animate-slide-up overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 right-4 z-30 p-2 bg-white/80 md:bg-gray-100 dark:bg-black/50 md:dark:bg-gray-800 rounded-full hover:rotate-90 transition-all dark:text-white backdrop-blur-sm">
           <X size={20} />
         </button>
 
-        <div className="w-full md:w-1/2 h-40 md:h-auto bg-gray-50 dark:bg-gray-900 shrink-0 relative">
+        <div className="w-full md:w-1/2 h-48 md:h-auto bg-gray-50 dark:bg-gray-900 shrink-0 relative">
           <img src={product.img} className="w-full h-full object-cover" alt={product.nombre} />
         </div>
 
-        <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col dark:text-white overflow-y-auto md:overflow-visible">
+        <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col dark:text-white overflow-y-auto">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600 mb-2">{product.categoria}</span>
           <h2 className="text-2xl md:text-3xl font-black uppercase leading-none mb-4">{product.nombre}</h2>
 
@@ -86,15 +144,90 @@ const ProductTargetModal = ({ product, onClose, onAddToCart }) => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 bg-black dark:bg-white dark:text-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-80 transition-all flex items-center justify-center gap-2"
-              >
-                <ShoppingBag size={18} /> Añadir
-              </button>
-            </div>
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-black dark:bg-white dark:text-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-80 transition-all flex items-center justify-center gap-2"
+            >
+              <ShoppingBag size={18} /> Añadir
+            </button>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Modal de Recomendaciones (Upsell)
+const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [addedItems, setAddedItems] = useState([])
+
+  useEffect(() => {
+    if (isOpen) setAddedItems([])
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const itemsPerPage = 3
+  const visibleProducts = allProducts.slice(currentIndex, currentIndex + itemsPerPage)
+
+  const nextSlide = () => { if (currentIndex + itemsPerPage < allProducts.length) setCurrentIndex(currentIndex + 1) }
+  const prevSlide = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1) }
+
+  const handleAdd = (product) => {
+    onAddRecommendation(product)
+    setAddedItems(prev => [...prev, product.id])
+  }
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up border border-gray-200 dark:border-gray-800">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white transition-colors"><X size={20} /></button>
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#111] shadow-lg"><Check size={32} strokeWidth={4} /></div>
+          <h2 className="text-2xl font-black uppercase dark:text-white leading-none">¡Producto Agregado!</h2>
+          <p className="text-gray-500 text-xs mt-2">Completa tu outfit con estas recomendaciones:</p>
+        </div>
+        
+        <div className="relative group mb-8 px-2">
+          <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
+          
+          <div className="grid grid-cols-3 gap-3">
+            {visibleProducts.map(p => {
+              const isAdded = addedItems.includes(p.id)
+              return (
+                <div key={p.id} className="border border-gray-100 dark:border-gray-800 p-2 rounded-xl flex flex-col gap-2 group/card hover:border-black dark:hover:border-white transition-all animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100"><img src={p.img} alt={p.nombre} className="w-full h-full object-cover" /></div>
+                  <div>
+                    <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
+                    <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
+                  </div>
+                  
+                  <button 
+                    onClick={() => !isAdded && handleAdd(p)}
+                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
+                      isAdded 
+                        ? 'bg-green-600 cursor-default'
+                        : 'bg-black dark:bg-white hover:opacity-80'
+                    }`}
+                  >
+                    {isAdded ? (
+                      <> <Check size={10} strokeWidth={4} /> Añadido </>
+                    ) : (
+                      <> <Plus size={10} /> Añadir </>
+                    )}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          <button onClick={nextSlide} className={`absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex + itemsPerPage >= allProducts.length ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronRight size={18} className="dark:text-white" /></button>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4">
+          <button onClick={onClose} className="flex-1 py-3.5 rounded-full border-2 border-gray-200 dark:border-gray-700 font-bold uppercase text-xs hover:border-black dark:hover:border-white transition-colors dark:text-white">Seguir Comprando</button>
+          <Link href="/carrito" className="flex-1 py-3.5 rounded-full bg-green-600 text-white font-black uppercase text-xs text-center hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">Ir al Carrito <ArrowRight size={14} /></Link>
         </div>
       </div>
     </div>
@@ -119,8 +252,7 @@ function ProductosContent() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [animatedCount, setAnimatedCount] = useState(0)
 
-  // HOOK COMPLETO
-  const { addToCart, getCartItemsCount, cart, getCartTotal, removeFromCart } = useCart()
+  const { addToCart } = useCart()
 
   const categories = [
     { id: 'todos', name: 'Todo' },
@@ -242,155 +374,37 @@ function ProductosContent() {
         </div>
       </div>
 
-      {/* GRID DE PRODUCTOS */}
+      {/* GRID DE PRODUCTOS USANDO EL COMPONENTE ProductCard */}
       <main className="container mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-12">
           {filteredProducts.map((product) => (
-            <div key={product.id} className="group relative">
-
-              {/* TARJETA */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 transition-all duration-500 group-hover:shadow-xl dark:group-hover:shadow-none mb-4">
-
-                {/* Link a Detalle (Cubre toda la imagen) */}
-                <Link href={`/productos/${product.id}`} className="block w-full h-full">
-                  <img src={product.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={product.nombre} />
-                </Link>
-
-                {/* Tag Flotante */}
-                <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                  {product.tag && <span className="bg-white dark:bg-black text-black dark:text-white text-[9px] font-black px-2 py-1 uppercase tracking-widest shadow-sm">{product.tag}</span>}
-                  {product.oferta && <span className="bg-red-600 text-white text-[9px] font-black px-2 py-1 uppercase tracking-widest shadow-sm">Sale</span>}
-                </div>
-
-                {/* Overlay oscuro (Solo en PC al hover) */}
-                <div className="hidden md:block absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-                {/* --- BOTONES DE ACCIÓN (TU ESTILO) --- */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                  className="absolute top-3 right-3 z-20 bg-white dark:bg-black p-2 rounded-full shadow-md text-black dark:text-white border border-gray-100 dark:border-gray-800 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 lg:hover:scale-110 active:scale-95"
-                >
-                  <Eye size={16} />
-                </button>
-
-                <button
-                  onClick={(e) => { e.stopPropagation(); addToCart(product); setShowSuccess(true); }}
-                  className="absolute bottom-3 right-3 z-20 bg-black dark:bg-white text-white dark:text-black p-3 rounded-full shadow-xl opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 hover:scale-110 active:scale-95"
-                >
-                  <Plus size={18} />
-                </button>
-
-              </div>
-
-              {/* INFO */}
-              <div className="px-1">
-                <div className="flex justify-between items-start mb-1">
-                  <Link href={`/productos/${product.id}`} className="text-xs font-bold uppercase text-gray-900 dark:text-white hover:text-red-600 transition-colors line-clamp-1 pr-4">
-                    {product.nombre}
-                  </Link>
-                  <div className="flex items-center gap-1 text-gray-300 dark:text-gray-600">
-                    <Star size={10} fill="currentColor" className="text-black dark:text-white" />
-                    <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400">{product.rating}</span>
-                  </div>
-                </div>
-
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">{product.categoria}</p>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-black text-gray-900 dark:text-white">${product.precio.toLocaleString()}</span>
-                  {product.precio_ant && <span className="text-[10px] text-gray-400 line-through decoration-red-500">${product.precio_ant.toLocaleString()}</span>}
-                </div>
-              </div>
-            </div>
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onView={() => setSelectedProduct(product)}
+              onAdd={(p) => { addToCart(p); setShowSuccess(true); }}
+            />
           ))}
         </div>
       </main>
 
       {/* MODALES */}
-      <ProductTargetModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAddToCart={(p) => { addToCart(p); setShowSuccess(true); setTimeout(() => setShowSuccess(false), 3000); }} />
-        <UpsellModal 
-         isOpen={showSuccess} 
-         onClose={() => setShowSuccess(false)} 
-         allProducts={products}
-         onAddRecommendation={(p) => addToCart(p)}
+      <ProductTargetModal 
+        product={selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+        onAddToCart={(p) => { 
+          addToCart(p); 
+          setSelectedProduct(null); 
+          setShowSuccess(true); 
+        }} 
       />
-    </div>
-  )
-}
-
-// --- NUEVO MODAL TIPO POP-UP CON RECOMENDACIONES ---
-const UpsellModal = ({ isOpen, onClose, allProducts, onAddRecommendation }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [addedItems, setAddedItems] = useState([]) // Nuevo estado para rastrear añadidos
-
-  // Reseteamos los añadidos cada vez que se abre el modal principal
-  useEffect(() => {
-    if (isOpen) setAddedItems([])
-  }, [isOpen])
-
-  if (!isOpen) return null
-
-  const itemsPerPage = 3
-  const visibleProducts = allProducts.slice(currentIndex, currentIndex + itemsPerPage)
-
-  const nextSlide = () => { if (currentIndex + itemsPerPage < allProducts.length) setCurrentIndex(currentIndex + 1) }
-  const prevSlide = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1) }
-
-  const handleAdd = (product) => {
-    onAddRecommendation(product)
-    setAddedItems(prev => [...prev, product.id]) // Marcamos como añadido
-  }
-
-  return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up border border-gray-200 dark:border-gray-800">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-black dark:hover:text-white transition-colors"><X size={20} /></button>
-        <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-[#111] shadow-lg"><Check size={32} strokeWidth={4} /></div>
-          <h2 className="text-2xl font-black uppercase dark:text-white leading-none">¡Producto Agregado!</h2>
-          <p className="text-gray-500 text-xs mt-2">Completa tu outfit con estas recomendaciones:</p>
-        </div>
-        <div className="relative group mb-8 px-2">
-          <button onClick={prevSlide} className={`absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex === 0 ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronLeft size={18} className="dark:text-white" /></button>
-          
-          <div className="grid grid-cols-3 gap-3">
-            {visibleProducts.map(p => {
-              const isAdded = addedItems.includes(p.id) // Verificamos si ya se añadió
-              return (
-                <div key={p.id} className="border border-gray-100 dark:border-gray-800 p-2 rounded-xl flex flex-col gap-2 group/card hover:border-black dark:hover:border-white transition-all animate-in fade-in slide-in-from-right-4 duration-300">
-                  <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100"><img src={p.img} alt={p.nombre} className="w-full h-full object-cover" /></div>
-                  <div>
-                    <h4 className="text-[9px] font-bold uppercase line-clamp-1 dark:text-white">{p.nombre}</h4>
-                    <p className="text-xs font-black text-red-600">${p.precio.toLocaleString()}</p>
-                  </div>
-                  
-                  <button 
-                    onClick={() => !isAdded && handleAdd(p)} // Solo añade si no está añadido
-                    className={`w-full text-white dark:text-black text-[9px] font-black uppercase py-2 rounded-lg flex items-center justify-center gap-1 transition-all duration-300 ${
-                      isAdded 
-                        ? 'bg-green-600 cursor-default' // Estilo verde si ya se añadió
-                        : 'bg-black dark:bg-white hover:opacity-80' // Estilo normal
-                    }`}
-                  >
-                    {isAdded ? (
-                      <> <Check size={10} strokeWidth={4} /> Añadido </>
-                    ) : (
-                      <> <Plus size={10} /> Añadir </>
-                    )}
-                  </button>
-
-                </div>
-              )
-            })}
-          </div>
-
-          <button onClick={nextSlide} className={`absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 transition-all ${currentIndex + itemsPerPage >= allProducts.length ? 'opacity-0' : 'opacity-100 hover:scale-110'}`}><ChevronRight size={18} className="dark:text-white" /></button>
-        </div>
-        <div className="flex flex-col md:flex-row gap-4">
-          <button onClick={onClose} className="flex-1 py-3.5 rounded-full border-2 border-gray-200 dark:border-gray-700 font-bold uppercase text-xs hover:border-black dark:hover:border-white transition-colors dark:text-white">Seguir Comprando</button>
-          <Link href="/carrito" className="flex-1 py-3.5 rounded-full bg-green-600 text-white font-black uppercase text-xs text-center hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">Ir al Carrito <ArrowRight size={14} /></Link>
-        </div>
-      </div>
+      
+      <UpsellModal 
+        isOpen={showSuccess} 
+        onClose={() => setShowSuccess(false)} 
+        allProducts={products}
+        onAddRecommendation={(p) => addToCart(p)}
+      />
     </div>
   )
 }
